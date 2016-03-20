@@ -1,4 +1,4 @@
-# Slush Slush-react-redux [![Build Status](https://secure.travis-ci.org/unfazed/slush-slush-react-redux.png?branch=master)](https://travis-ci.org/unfazed/slush-slush-react-redux) [![NPM version](https://badge-me.herokuapp.com/api/npm/slush-slush-react-redux.png)](http://badges.enytc.com/for/npm/slush-slush-react-redux)
+# Slush Slush-react-redux
 
 > A slush generator for react with redux
 
