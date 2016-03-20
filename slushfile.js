@@ -43,10 +43,7 @@ var defaults = (function () {
     }
 
     return {
-        appName: workingDirName,
-        userName: osUserName || format(user.name || ''),
-        authorName: user.name || '',
-        authorEmail: user.email || ''
+        appName: workingDirName
     };
 })();
 
@@ -62,29 +59,10 @@ gulp.task('default', function (done) {
         name: 'appVersion',
         message: 'What is the version of your project?',
         default: '0.1.0'
-    }, {
-        name: 'authorName',
-        message: 'What is the author name?',
-        default: defaults.authorName
-    }, {
-        name: 'authorEmail',
-        message: 'What is the author email?',
-        default: defaults.authorEmail
-    }, {
-        name: 'userName',
-        message: 'What is the github username?',
-        default: defaults.userName
-    }, {
-        type: 'confirm',
-        name: 'moveon',
-        message: 'Continue?'
     }];
     //Ask
     inquirer.prompt(prompts,
         function (answers) {
-            if (!answers.moveon) {
-                return done();
-            }
             answers.appNameSlug = _.slugify(answers.appName);
             gulp.src(__dirname + '/templates/**')
                 .pipe(template(answers))

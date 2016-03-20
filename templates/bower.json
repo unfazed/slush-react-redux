@@ -1,0 +1,12 @@
+{
+  "name": "<%= appNameSlug %>",
+  "description": "<%= appDescription %>",
+  "moduleType": ["amd", "globals"],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "jquery": "^1.7.2",
+    "es5-shim": "^4.5.7",
+    "requirejs": "^2.2.0"
+  }
+}
