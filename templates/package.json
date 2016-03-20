@@ -9,6 +9,9 @@
     "dist": "gulp dist"
   },
   "dependencies": {
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-redux": "^4.4.1",
     "gulp": "^3.6.2",
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.3.5",
