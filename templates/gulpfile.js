@@ -86,7 +86,7 @@ gulp.task('server', function () {
 });
 
 // build
-gulp.task('build', ['compile', 'concatCSS', 'copyToBuild']);
+gulp.task('build', ['compile', 'bower', 'concatCSS', 'copyToBuild']);
 
 // dist
 gulp.task('dist', ['build', 'uglifyJS', 'uglifyCSS', 'copyToDist']);
