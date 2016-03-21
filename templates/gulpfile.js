@@ -10,15 +10,18 @@ var mainBowerFiles = require('gulp-main-bower-files');
 var glob = require('glob');
 var browserify = require('browserify');
 var babelify = require('babelify');
+var fs = require('fs');
+var path = require('path');
 
 gulp.task('compile', function () {
     glob('src/app/scripts/*.js', function(err, files){
         if(err) done(err);
         files.map(function(entry) {
+            var filename = path.basename(entry);
             browserify(entry)
                 .transform("babelify", {presets: ["es2015", "react"]})
                 .bundle()
-                .pipe(gulp.dest('build/js'));
+                .pipe(fs.createWriteStream("build/js/" + filename));
         });
     });
 });
