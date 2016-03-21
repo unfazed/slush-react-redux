@@ -3,25 +3,24 @@
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var webserver = require('gulp-webserver');
-var babel = require('gulp-babel');
-var watch = require('gulp-watch');
 var concatCSS = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var uglify = require('gulp-uglify');
 var mainBowerFiles = require('gulp-main-bower-files');
+var glob = require('glob');
+var browserify = require('browserify');
+var babelify = require('babelify');
 
-gulp.task('pack', function () {
-    return gulp.src('src/app/scripts/*.js')
-        //babel
-        .pipe(babel({
-            presets: ['es2015']
-        }))
-        // browserify
-        .pipe(browserify({
-            insertGlobals : true,
-            debug : gutil.env !== "production"
-        }))
-        .pipe(gulp.dest('build/js'));
+gulp.task('compile', function () {
+    glob('src/app/scripts/*.js', function(err, files){
+        if(err) done(err);
+        files.map(function(entry) {
+            browserify(entry)
+                .transform("babelify", {presets: ["es2015", "react"]})
+                .bundle()
+                .pipe(gulp.dest('build/js'));
+        });
+    });
 });
 
 // concat css
@@ -84,7 +83,7 @@ gulp.task('server', function () {
 });
 
 // build
-gulp.task('build', ['pack', 'concatCSS', 'copyToBuild']);
+gulp.task('build', ['compile', 'concatCSS', 'copyToBuild']);
 
 // dist
 gulp.task('dist', ['build', 'uglifyJS', 'uglifyCSS', 'copyToDist']);
