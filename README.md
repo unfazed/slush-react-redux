@@ -1,14 +1,14 @@
-# Slush Slush-react-redux
+# Slush redux-react
 
 > A slush generator for react with redux
 
 
 ## Getting Started
 
-Install `slush-slush-react-redux` globally:
+Install `slush-redux-react` globally:
 
 ```bash
-$ npm install -g slush-slush-react-redux
+$ npm install -g https://github.com/unfazed/slush-redux-react.git
 ```
 
 ### Usage
@@ -16,13 +16,13 @@ $ npm install -g slush-slush-react-redux
 Create a new folder for your project:
 
 ```bash
-$ mkdir my-slush-slush-react-redux
+$ mkdir my-slush-redux-react
 ```
 
 Run the generator from within the new folder:
 
 ```bash
-$ cd my-slush-slush-react-redux && slush slush-react-redux
+$ cd my-slush-redux-react && slush redux-react
 ```
 
 ## Getting To Know Slush
@@ -35,10 +35,10 @@ To find out more about Slush, check out the [documentation](https://github.com/s
 
 ## Contributing
 
-See the [CONTRIBUTING Guidelines](https://github.com/unfazed/slush-slush-react-redux/blob/master/CONTRIBUTING.md)
+See the [CONTRIBUTING Guidelines](https://github.com/unfazed/slush-redux-react/blob/master/CONTRIBUTING.md)
 
 ## Support
-If you have any problem or suggestion please open an issue [here](https://github.com/unfazed/slush-slush-react-redux/issues).
+If you have any problem or suggestion please open an issue [here](https://github.com/unfazed/slush-redux-react/issues).
 
 ## License 
 
