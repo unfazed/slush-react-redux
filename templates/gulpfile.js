@@ -7,63 +7,55 @@ var concatCSS = require('gulp-concat-css');
 var cleanCSS = require('gulp-clean-css');
 var uglify = require('gulp-uglify');
 var mainBowerFiles = require('gulp-main-bower-files');
-var glob = require('glob');
-var browserify = require('browserify');
-var babelify = require('babelify');
-var fs = require('fs');
-var path = require('path');
+var named = require('vinyl-named');
+var webpack = require('webpack-stream');
 
-gulp.task('compile', function () {
-    glob('src/app/scripts/*.js', function(err, files){
-        if(err) done(err);
-        files.map(function(entry) {
-            var filename = path.basename(entry);
-            browserify(entry)
-                .transform("babelify", {presets: ["es2015", "react"]})
-                .bundle()
-                .pipe(fs.createWriteStream("build/js/" + filename));
-        });
-    });
+// 打包 jsx
+gulp.task('webpack', function () {
+    return gulp.src('src/scripts/jsx/*.jsx')
+        .pipe(named())
+        .pipe(webpack(require('./webpack.config.js')))
+        .pipe(gulp.dest('build/scripts/jsx'));
 });
 
-// concat css
-gulp.task('concatCSS', function () {
-    return gulp.src('src/app/styles/**/*.css')
+//合并 CSS
+gulp.task('css', function () {
+    return gulp.src('src/styles/**/*.css')
         .pipe(concatCSS('app.css'))
-        .pipe(gulp.dest('build/css'));
+        .pipe(gulp.dest('build/styles'));
 });
 
-// copy to build(images,root files)
-gulp.task('copyToBuild', function () {
-    return gulp.src(['src/app/images/**/*', 'src/app/*'])
+// 拷贝到构建目录
+gulp.task('buildCopy', function () {
+    return gulp.src(['src/images/**/*', 'src/scripts/*'])
         .pipe(gulp.dest('build'));
 });
 
-// copy to dist(images,root files)
-gulp.task('copyToDist', function () {
+// 拷贝到打包目录
+gulp.task('distCopy', function () {
     return gulp.src(['build/images/**/*', 'build/*'])
         .pipe(gulp.dest('dist'));
 });
 
-// uglify js
-gulp.task('uglifyJS', function () {
-    return gulp.src('build/js/**/*.js')
+// 压缩JS
+gulp.task('compressJS', function () {
+    return gulp.src('build/scripts/**/*.js')
         .pipe(uglify())
-        .pipe(gulp.dest('dist/js'));
+        .pipe(gulp.dest('dist/scripts'));
 });
 
-// uglify css
-gulp.task('uglifyCSS', function () {
-    return gulp.src('build/css/**/*.css')
+// 压缩CSS
+gulp.task('compressCSS', function () {
+    return gulp.src('build/styles/**/*.css')
         .pipe(cleanCSS())
-        .pipe(gulp.dest('dist/css'));
+        .pipe(gulp.dest('dist/styles'));
 });
 
 // watch
 gulp.task('watch', function () {
-    gulp.watch('src/app/scripts/**/*.js', ['pack']);
-    gulp.watch('src/app/styles/**/*.css', ['concatCSS']);
-    gulp.watch(['src/app/images/**/*', 'src/app/*'], ['copyToBuild'])
+    gulp.watch('src/scripts/**/*.js', ['webpack', 'buildCopy']);
+    gulp.watch('src/styles/**/*.css', ['css']);
+    gulp.watch(['src/images/**/*', 'src/scripts/*'], ['copyToBuild'])
 });
 
 // bower
@@ -86,7 +78,10 @@ gulp.task('server', function () {
 });
 
 // build
-gulp.task('build', ['compile', 'bower', 'concatCSS', 'copyToBuild']);
+gulp.task('build', ['webpack', 'bower', 'concatCSS', 'copyToBuild']);
+
+// 压缩
+gulp.task('compress', ['compressJS', 'compressCSS']);
 
 // dist
 gulp.task('dist', ['build', 'uglifyJS', 'uglifyCSS', 'copyToDist']);
