@@ -3,10 +3,8 @@
   "version": "<%= appVersion %>",
   "description": "<%= appDescription %>",
   "scripts": {
-    "start": "gulp server --host=0.0.0.0 --port=3000",
-    "watch": "gulp watch",
-    "build": "gulp build",
-    "dist": "gulp dist"
+    "start": "gulp start --host=0.0.0.0 --port=3000",
+    "build": "gulp build"
   },
   "dependencies": {
     "bower": "^1.7.6",
