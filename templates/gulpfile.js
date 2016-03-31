@@ -1,87 +1,146 @@
 'use strict';
 
-var gulp = require('gulp');
-var gutil = require('gulp-util');
-var webserver = require('gulp-webserver');
-var concatCSS = require('gulp-concat-css');
-var cleanCSS = require('gulp-clean-css');
-var uglify = require('gulp-uglify');
-var mainBowerFiles = require('gulp-main-bower-files');
-var named = require('vinyl-named');
-var webpack = require('webpack-stream');
+var gulp = require("gulp");
+var gutil = require("gulp-util");
+var webserver = require("gulp-webserver");
+var concatCSS = require("gulp-concat-css");
+var cssmin = require("gulp-cssmin");
+var uglify = require("gulp-uglify");
+var mainBowerFiles = require("gulp-main-bower-files");
+var named = require("vinyl-named");
+var webpack = require("webpack-stream");
+var clean = require("gulp-clean");
+
+var src = {
+    jsx: "src/scripts/jsx/*.jsx",
+    scripts: "src/scripts/*.js",
+    styles: "src/styles/**/*.css",
+    images: "src/images/**/*",
+    bower: "./bower.json",
+    webpack: require("./webpack.config.js")
+};
+
+var dist = {
+    base: "dist",
+    app: "dist/scripts/app/",
+    scripts: "dist/scripts/",
+    vendors: "dist/scripts/vendors/",
+    styles: "dist/styles/",
+    images: "dist/images/"
+};
 
 // 打包 jsx
 gulp.task('webpack', function () {
-    return gulp.src('src/scripts/jsx/*.jsx')
+    return gulp.src(src.jsx)
         .pipe(named())
-        .pipe(webpack(require('./webpack.config.js')))
-        .pipe(gulp.dest('build/scripts/jsx'));
+        .pipe(webpack(src.webpack))
+        .pipe(gulp.dest(dist.app));
 });
 
 //合并 CSS
-gulp.task('css', function () {
-    return gulp.src('src/styles/**/*.css')
-        .pipe(concatCSS('app.css'))
-        .pipe(gulp.dest('build/styles'));
+gulp.task("concat:css", function () {
+    return gulp.src(src.styles)
+        .pipe(concatCSS("app.css"))
+        .pipe(gulp.dest(dist.styles));
 });
 
-// 拷贝到构建目录
-gulp.task('buildCopy', function () {
-    return gulp.src(['src/images/**/*', 'src/scripts/*'])
-        .pipe(gulp.dest('build'));
+//拷贝 images
+gulp.task("copy:images", function () {
+    return gulp.src(src.images)
+        .pipe(gulp.dest(dist.images));
 });
 
-// 拷贝到打包目录
-gulp.task('distCopy', function () {
-    return gulp.src(['build/images/**/*', 'build/*'])
-        .pipe(gulp.dest('dist'));
+//拷贝 js
+gulp.task("copy:javascript", function () {
+    return gulp.src(src.scripts)
+        .pipe(gulp.dest(dist.scripts));
+});
+
+//拷贝 bower_components 主文件
+gulp.task("copy:bower", function () {
+    return gulp.src(src.bower)
+        .pipe(mainBowerFiles( ))
+        .pipe(gulp.dest(dist.vendors));
 });
 
 // 压缩JS
-gulp.task('compressJS', function () {
-    return gulp.src('build/scripts/**/*.js')
+gulp.task("minify:javascript", function () {
+    return gulp.src(dist.scripts + "**/*.js")
         .pipe(uglify())
-        .pipe(gulp.dest('dist/scripts'));
+        .pipe(gulp.dest(dist.scripts));
 });
 
 // 压缩CSS
-gulp.task('compressCSS', function () {
-    return gulp.src('build/styles/**/*.css')
-        .pipe(cleanCSS())
-        .pipe(gulp.dest('dist/styles'));
+gulp.task("minify:css", function () {
+    return gulp.src(dist.styles + "**/*.css")
+        .pipe(cssmin())
+        .pipe(gulp.dest(dist.styles));
 });
 
-// watch
-gulp.task('watch', function () {
-    gulp.watch('src/scripts/**/*.js', ['webpack', 'buildCopy']);
-    gulp.watch('src/styles/**/*.css', ['css']);
-    gulp.watch(['src/images/**/*', 'src/scripts/*'], ['copyToBuild'])
+// 监听CSS变化
+gulp.task("watch:css", function () {
+    gulp.watch(src.styles, ["concat:css"]);
 });
 
-// bower
-gulp.task('bower', function () {
-    return gulp.src('./bower.json')
-        .pipe(mainBowerFiles( ))
-        .pipe(gulp.dest('build/js/vendors'));
+// 监听jsx变化
+gulp.task("watch:jsx", function () {
+    gulp.watch(src.jsx, ["webpack"]);
 });
 
-// server
+// 监听javascript变化
+gulp.task("watch:javascript", function () {
+    gulp.watch(src.scripts, ["copy:javascripts"]);
+});
+
+//监听图片变化
+gulp.task("watch:images", function () {
+    gulp.watch(src.images, ["copy:images"]);
+});
+
+// 删除 images
+gulp.task("clean:images", function () {
+    return gulp.src(dist.images + "*")
+        .pipe(clean());
+});
+
+// 删除 javascript
+gulp.task("clean:javascript", function () {
+    return gulp.src([dist.app + "*", dist.vendors + "*", dist.scripts + "*.js"])
+        .pipe(clean());
+});
+
+// 删除 styles
+gulp.task("clean:css", function () {
+    return gulp.src(dist.styles + "*.css")
+        .pipe(clean());
+});
+
+// 启动服务
 gulp.task('server', function () {
-  var host = gutil.env.host || '127.0.0.1',
+  var host = gutil.env.host || "127.0.0.1",
       port = gutil.env.port || 3000;
 
-  gulp.src('build')
+  gulp.src(dist.base)
       .pipe(webserver({
         host: host,
         port: port
       }));
 });
 
-// build
-gulp.task('build', ['webpack', 'bower', 'concatCSS', 'copyToBuild']);
+//clean
+gulp.task("clean", ["clean:images", "clean:css", "clean:javascript"]);
 
-// 压缩
-gulp.task('compress', ['compressJS', 'compressCSS']);
+//minify
+gulp.task("minify", ["minify:javascript", "minify:css"]);
 
-// dist
-gulp.task('dist', ['build', 'uglifyJS', 'uglifyCSS', 'copyToDist']);
+//copy
+gulp.task("copy", ["copy:images", "copy:javascript", "copy:bower"]);
+
+//watch
+gulp.task("watch", ["watch:jsx", "watch:javascript", "watch:css", "watch:images"]);
+
+//start
+gulp.task("start", ["server", "watch"]);
+
+//build
+gulp.task("build", ["clean", "webpack", "concat:css", "copy", "minify"]);
