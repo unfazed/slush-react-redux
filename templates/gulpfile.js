@@ -12,6 +12,7 @@ var webpack = require("webpack-stream");
 var clean = require("gulp-clean");
 
 var src = {
+    base: "src/",
     jsx: "src/scripts/jsx/*.jsx",
     scripts: "src/scripts/*.js",
     styles: "src/styles/**/*.css",
@@ -21,7 +22,7 @@ var src = {
 };
 
 var dist = {
-    base: "dist",
+    base: "dist/",
     app: "dist/scripts/app/",
     scripts: "dist/scripts/",
     vendors: "dist/scripts/vendors/",
@@ -61,6 +62,12 @@ gulp.task("copy:bower", function () {
     return gulp.src(src.bower)
         .pipe(mainBowerFiles( ))
         .pipe(gulp.dest(dist.vendors));
+});
+
+//拷贝根目录文件
+gulp.task("copy:root", function () {
+    return gulp.src(src.base + "*")
+        .pipe(gulp.dest(dist.base));
 });
 
 // 压缩JS
@@ -134,13 +141,16 @@ gulp.task("clean", ["clean:images", "clean:css", "clean:javascript"]);
 gulp.task("minify", ["minify:javascript", "minify:css"]);
 
 //copy
-gulp.task("copy", ["copy:images", "copy:javascript", "copy:bower"]);
+gulp.task("copy", ["copy:images", "copy:javascript", "copy:bower", "copy:root"]);
 
 //watch
 gulp.task("watch", ["watch:jsx", "watch:javascript", "watch:css", "watch:images"]);
 
-//start
-gulp.task("start", ["server", "watch"]);
-
 //build
-gulp.task("build", ["clean", "webpack", "concat:css", "copy", "minify"]);
+gulp.task("build", ["clean", "webpack", "concat:css", "copy"]);
+
+//start
+gulp.task("start", ["build", "server", "watch"]);
+
+//dist
+gulp.task("dist", ["build", "minify"]);
