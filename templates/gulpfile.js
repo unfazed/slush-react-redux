@@ -10,16 +10,19 @@ var mainBowerFiles = require("gulp-main-bower-files");
 var named = require("vinyl-named");
 var webpack = require("webpack-stream");
 var clean = require("gulp-clean");
+var runSequence = require('run-sequence');
 
 var src = {
     base: "src/",
-    jsx: "src/scripts/jsx/*.jsx",
+    jsx: "src/scripts/jsx/**/*.js",
+    main_jsx: "src/scripts/jsx/*.js",
     scripts: "src/scripts/*.js",
     styles: "src/styles/**/*.css",
     images: "src/images/**/*",
     bower: "./bower.json",
     webpack: require("./webpack.config.js")
 };
+
 
 var dist = {
     base: "dist/",
@@ -32,7 +35,7 @@ var dist = {
 
 // 打包 jsx
 gulp.task('webpack', function () {
-    return gulp.src(src.jsx)
+    return gulp.src(src.main_jsx)
         .pipe(named())
         .pipe(webpack(src.webpack))
         .pipe(gulp.dest(dist.app));
@@ -96,7 +99,7 @@ gulp.task("watch:jsx", function () {
 
 // 监听javascript变化
 gulp.task("watch:javascript", function () {
-    gulp.watch(src.scripts, ["copy:javascripts"]);
+    gulp.watch(src.scripts, ["copy:javascript"]);
 });
 
 //监听图片变化
@@ -152,10 +155,16 @@ gulp.task("copy", ["copy:images", "copy:javascript", "copy:bower", "copy:root"])
 gulp.task("watch", ["watch:jsx", "watch:javascript", "watch:css", "watch:images", "watch:root"]);
 
 //build
-gulp.task("build", ["clean", "webpack", "concat:css", "copy"]);
+gulp.task("build", function (callback) {
+    runSequence("clean", "webpack", "concat:css", "copy", callback);
+});
 
 //start
-gulp.task("start", ["build", "server", "watch"]);
+gulp.task("start", function (callback) {
+    runSequence("build", ["server", "watch"], callback);
+});
 
 //dist
-gulp.task("dist", ["build", "minify"]);
+gulp.task("dist", function (callback) {
+    runSequence("build", "minify", callback);
+});
