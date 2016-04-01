@@ -104,6 +104,11 @@ gulp.task("watch:images", function () {
     gulp.watch(src.images, ["copy:images"]);
 });
 
+//监听根目录文件变化
+gulp.task("watch:root", function () {
+    gulp.watch(src.base + "*", ["copy:root"]);
+});
+
 // 删除 images
 gulp.task("clean:images", function () {
     return gulp.src(dist.images + "*")
@@ -144,7 +149,7 @@ gulp.task("minify", ["minify:javascript", "minify:css"]);
 gulp.task("copy", ["copy:images", "copy:javascript", "copy:bower", "copy:root"]);
 
 //watch
-gulp.task("watch", ["watch:jsx", "watch:javascript", "watch:css", "watch:images"]);
+gulp.task("watch", ["watch:jsx", "watch:javascript", "watch:css", "watch:images", "watch:root"]);
 
 //build
 gulp.task("build", ["clean", "webpack", "concat:css", "copy"]);
